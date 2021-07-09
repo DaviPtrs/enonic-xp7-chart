@@ -61,6 +61,7 @@ volumeSpec:
 ingress:
   sslIssuer: "letsencrypt-prod"
   ssl: true
+  redirectFromWWW: true
   maxBodySize: 1000m
   hosts:
     - host: app.example.com
