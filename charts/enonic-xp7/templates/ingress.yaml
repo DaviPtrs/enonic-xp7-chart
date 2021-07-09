@@ -1,41 +1,36 @@
-{{- if .Values.ingress.enabled -}}
-{{- $fullName := include "enonic-xp7.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
+# ---------- Ingress entry ------------
 apiVersion: extensions/v1beta1
-{{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
-  labels:
-    {{- include "enonic-xp7.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+  name: {{ .Release.Name }}-ingress
+  namespace: {{ .Release.Namespace }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-spec:
-  {{- if .Values.ingress.tls }}
-  tls:
-    {{- range .Values.ingress.tls }}
-    - hosts:
-        {{- range .hosts }}
-        - {{ . | quote }}
-        {{- end }}
-      secretName: {{ .secretName }}
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    {{- if .Values.ingress.ssl | default false }}
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.sslIssuer | quote }}
     {{- end }}
-  {{- end }}
+    ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.maxBodySize }}
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+spec:
+{{- if .Values.ingress.ssl | default false }}
+  tls:
+    - hosts:
+        {{- range .Values.ingress.hosts }}
+        {{- if or (not (hasKey . "ssl")) .ssl }}
+        - {{ .host | quote }}
+        {{- end }}
+        {{- end }}
+      secretName: {{ .Release.Name }}-tls
+{{- end }}
   rules:
     {{- range .Values.ingress.hosts }}
-    - host: {{ .host | quote }}
+    - host: {{ .host }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
+          - path: /
             backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
-          {{- end }}
+              serviceName: {{ $.Values.appInfo.name }}-service
+              servicePort: 8080
     {{- end }}
-  {{- end }}

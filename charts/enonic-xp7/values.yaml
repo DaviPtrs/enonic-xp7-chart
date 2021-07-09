@@ -1,63 +1,37 @@
-# Default values for enonic-xp7.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+appInfo:
+  name: giropops
+  namespace: girons
+
+image:
+  repository: enonic/xp
+  pullPolicy: IfNotPresent
+  tag: "7.4.1-ubuntu"
+
+suPassword: changeme
+
+JarSpecs:
+  prefix: "sample-project-"
+  name: sample-project-1.1.0.jar
+  bucketOptions:
+    secret: bucket-secret
+    url: s3.example.com
+    suffix: sample-project/staging
+
+envVars:
+  - name: JAVA_OPTS
+    value: -Xms2G -Xmx2G
+
+probes:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+terminationGracePeriodSeconds: 180
 
 replicaCount: 1
 
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
-
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 80
-
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-      - path: /
-        backend:
-          serviceName: chart-example.local
-          servicePort: 80
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-resources: {}
+resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -65,19 +39,57 @@ resources: {}
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
-  # requests:
+  requests:
   #   cpu: 100m
-  #   memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+    memory: 2000Mi
 
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+volumeSpec:
+  storageClass: "managed-nfs-storage"
+  sizes:
+    blobs: 3Gi
+    data: 3Gi
+    snapshots: 3Gi
+    deploy: 400Mi
+
+
+ingress:
+  sslIssuer: "letsencrypt-prod"
+  ssl: true
+  maxBodySize: 1000m
+  hosts:
+    - host: app.example.com
+    - host: localhost
+      ssl: false
+
+vhosts: |-
+  enabled = true
+
+  mapping.site.host = app.example.com
+  mapping.site.source = /
+  mapping.site.target = /site/default/master/example
+
+  mapping.status.host = app.example.com
+  mapping.status.source = /status
+  mapping.status.target = /status
+  mapping.status.idProvider.system = default
+
+  mapping.admin.host = app.example.com
+  mapping.admin.source = /admin
+  mapping.admin.target = /admin
+  mapping.admin.idProvider.system = default
+
+customEnonicConfigs:
+  com.enonic.xp.mail.cfg: |-
+    smtpHost=smtp.gmail.com
+    smtpPort=587
+    smtpAuth=true
+    smtpUser=test@test.com
+    smtpPassword=password
+    smtpTLS=true
+

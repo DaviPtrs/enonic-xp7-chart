@@ -1,0 +1,86 @@
+# ---------- Deploy ------------
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    enonic-operator-managed: ""
+spec:
+  serviceName: {{ .Release.Name }}-intra-service
+  replicas: {{ .Values.replicaCount }}
+  selector:
+      matchLabels:
+        name: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          name: xp-app
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent"}}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.envVars }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /enonic-xp/home/config/
+              name: config-volume
+            - mountPath: /enonic-xp/home/repo/blob/
+              name: blobs
+            - mountPath: /enonic-xp/home/snapshots/
+              name: snapshots
+            - mountPath: /enonic-xp/home/data/
+              name: data
+            - mountPath: /enonic-xp/home/deploy/
+              name: deploy
+          livenessProbe:
+            httpGet:
+              path: /cluster.manager
+              port: 2609
+            failureThreshold: 2
+            initialDelaySeconds: {{ .Values.probes.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.probes.periodSeconds | default 10 }}
+          readinessProbe:
+            httpGet:
+              path: /cluster.manager
+              port: 2609
+            initialDelaySeconds: {{ .Values.probes.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.probes.periodSeconds | default 10 }}
+      terminationGracePeriodSeconds: {{ .Values.probes.terminationGracePeriodSeconds | default 180 }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ .Release.Name }}-config
+        - name: blobs
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-blobs
+        - name: snapshots
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-snapshots
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-data
+        - name: deploy
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-deploy
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

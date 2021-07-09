@@ -1,0 +1,14 @@
+apiVersion: kopf.enonic/v1
+kind: EnonicXpApp
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  secret_name: {{ .Values.JarSpecs.bucketOptions.secret }}
+  pvc_name: {{ .Release.Namespace }}-deploy
+  bucket:
+    url: {{ .Values.JarSpecs.bucketOptions.url }}
+    url_sufix: {{ .Values.JarSpecs.bucketOptions.suffix }}
+  object:
+    prefix: {{ .Values.JarSpecs.prefix }}
+    name: {{ .Values.JarSpecs.name }}
