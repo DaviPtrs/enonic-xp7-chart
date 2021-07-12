@@ -20,6 +20,7 @@ envVars:
 probes:
   initialDelaySeconds: 30
   periodSeconds: 10
+  failureThreshold: 2
 
 terminationGracePeriodSeconds: 180
 
