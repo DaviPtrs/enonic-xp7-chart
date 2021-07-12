@@ -8,13 +8,13 @@ data:
     node.data = true
     node.master = true
 
-    discovery.unicast.sockets = {{ .Release.Name }}-intra-service.girons.svc.cluster.local
+    discovery.unicast.sockets = {{ .Release.Name }}-intra-service.{{ .Release.Namespace }}.svc.cluster.local
   com.enonic.xp.hazelcast.cfg: |
     clusterConfigDefaults = false
 
     network.join.kubernetes.enabled = true
 
-    network.join.kubernetes.serviceDns = {{ .Release.Name }}-intra-service.girons.svc.cluster.local
+    network.join.kubernetes.serviceDns = {{ .Release.Name }}-intra-service.{{ .Release.Namespace }}.svc.cluster.local
 
     network.join.tcpIp.enabled = false
 
