@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   secret_name: {{ .Values.JarSpecs.bucketOptions.secret }}
-  pvc_name: {{ .Release.Namespace }}-deploy
+  pvc_name: {{ .Release.Name }}-deploy
   bucket:
     url: {{ .Values.JarSpecs.bucketOptions.url }}
     url_sufix: {{ .Values.JarSpecs.bucketOptions.suffix }}
