@@ -44,14 +44,14 @@ spec:
               name: deploy
           livenessProbe:
             httpGet:
-              path: /cluster.manager
+              path: /cluster.elasticsearch
               port: 2609
             failureThreshold: 2
             initialDelaySeconds: {{ .Values.probes.initialDelaySeconds | default 30 }}
             periodSeconds: {{ .Values.probes.periodSeconds | default 10 }}
           readinessProbe:
             httpGet:
-              path: /cluster.manager
+              path: /cluster.elasticsearch
               port: 2609
             initialDelaySeconds: {{ .Values.probes.initialDelaySeconds | default 30 }}
             periodSeconds: {{ .Values.probes.periodSeconds | default 10 }}

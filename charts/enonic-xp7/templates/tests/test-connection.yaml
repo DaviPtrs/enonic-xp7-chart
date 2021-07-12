@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ .Release.Name }}:2609/cluster.manager']
+      args: ['{{ .Release.Name }}:2609/cluster.elasticsearch']
   restartPolicy: Never
