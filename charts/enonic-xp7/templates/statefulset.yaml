@@ -53,8 +53,8 @@ spec:
             httpGet:
               path: /cluster.elasticsearch
               port: 2609
-            initialDelaySeconds: {{ .Values.probes.initialDelaySeconds | default 30 }}
-            periodSeconds: {{ .Values.probes.periodSeconds | default 10 }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
       terminationGracePeriodSeconds: {{ .Values.probes.terminationGracePeriodSeconds | default 180 }}
       volumes:
         - name: config-volume
