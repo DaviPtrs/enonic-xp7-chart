@@ -26,6 +26,10 @@ terminationGracePeriodSeconds: 180
 
 replicaCount: 1
 
+annotations: {}
+
+labels: {}
+
 podAnnotations: {}
 
 podLabels: {}
