@@ -13,6 +13,10 @@ JarSpecs:
     url: s3.example.com
     suffix: sample-project/staging
 
+smtp:
+  enabled: false
+  image: namshi/smtp
+
 envVars: []
 #   - name: JAVA_OPTS
 #     value: -Xms2G -Xmx2G
