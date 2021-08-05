@@ -70,32 +70,27 @@ ingress:
   maxBodySize: 1000m
   hosts:
     - host: app.example.com
-    - host: localhost
-      ssl: false
+    # - host: localhost
+    #   ssl: false
 
 vhosts: |-
-  enabled = true
+  enabled = false
 
   mapping.site.host = app.example.com
   mapping.site.source = /
   mapping.site.target = /site/default/master/example
-
-  mapping.status.host = app.example.com
-  mapping.status.source = /status
-  mapping.status.target = /status
-  mapping.status.idProvider.system = default
 
   mapping.admin.host = app.example.com
   mapping.admin.source = /admin
   mapping.admin.target = /admin
   mapping.admin.idProvider.system = default
 
-customEnonicConfigs:
-  com.enonic.xp.mail.cfg: |-
-    smtpHost=smtp.gmail.com
-    smtpPort=587
-    smtpAuth=true
-    smtpUser=test@test.com
-    smtpPassword=password
-    smtpTLS=true
+customEnonicConfigs: {}
+  # com.enonic.xp.mail.cfg: |-
+  #   smtpHost=smtp.gmail.com
+  #   smtpPort=587
+  #   smtpAuth=true
+  #   smtpUser=test@test.com
+  #   smtpPassword=password
+  #   smtpTLS=true
 
