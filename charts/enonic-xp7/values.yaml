@@ -86,6 +86,9 @@ vhosts: |-
   mapping.admin.idProvider.system = default
 
 customESConfigs: ""
+# customESConfigs: |-
+#   index.max_result_window = 2147483647
+
 
 customEnonicConfigs: {}
   # com.enonic.xp.mail.cfg: |-
