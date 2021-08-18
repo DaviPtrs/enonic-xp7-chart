@@ -9,6 +9,11 @@ data:
     node.master = true
 
     discovery.unicast.sockets = {{ .Release.Name }}-intra-service.{{ .Release.Namespace }}.svc.cluster.local
+
+  {{- with .Values.customESConfigs }}
+    {{ . | nindent 4 }}
+  {{- end }}  
+
   com.enonic.xp.hazelcast.cfg: |
     clusterConfigDefaults = false
 
