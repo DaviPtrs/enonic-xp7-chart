@@ -89,6 +89,7 @@ customESConfigs: ""
 # customESConfigs: |-
 #   index.max_result_window = 2147483647
 
+customLoggingFormat: '%date{ISO8601} %-5level %logger{36} - %msg%n'
 
 customEnonicConfigs: {}
   # com.enonic.xp.mail.cfg: |-
