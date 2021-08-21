@@ -100,3 +100,41 @@ customEnonicConfigs: {}
   #   smtpPassword=password
   #   smtpTLS=true
 
+
+# KEDA support. See https://keda.sh/
+# It creates a ScaledObject like on https://keda.sh/docs/2.4/concepts/scaling-deployments/
+keda:
+  enabled: false
+  settings:
+    # pollingInterval:  30                               # Optional. Default: 30 seconds
+    # cooldownPeriod:   300                              # Optional. Default: 300 seconds
+    # idleReplicaCount: 0                                # Optional. Must be less than minReplicaCount
+    # minReplicaCount:  1                                # Optional. Default: 0
+    maxReplicaCount:  1                                  # Optional. Default: 100
+    # fallback:                                          # Optional. Section to specify fallback options
+    #   failureThreshold: 3                              # Mandatory if fallback section is included
+    #   replicas: 6                                      # Mandatory if fallback section is included
+    # advanced:                                          # Optional. Section to specify advanced options
+    #   restoreToOriginalReplicaCount: true/false        # Optional. Default: false
+    #   horizontalPodAutoscalerConfig:                   # Optional. Section to specify HPA related options
+    #     behavior:                                      # Optional. Use to modify HPA's scaling behavior
+    #       scaleDown:
+    #         stabilizationWindowSeconds: 300
+    #         policies:
+    #         - type: Percent
+    #           value: 100
+    #           periodSeconds: 15
+  # If any trigger is provided, a Prometheus trigger will be used with the following
+  # access URL and the "nginx_ingress_controller_requests" metric, which will tell KEDA
+  # if the application is being used or not (regardless of how many requests).
+  # This approach is used just to avoid idle applications from
+  # spending resources unnecessarily
+  defaultPrometheusURL: "http://prometheus.prometheus.svc.cluster.local"
+  triggers: []
+    # - type: prometheus
+    #   metadata:
+    #     serverAddress: "http://prometheus.kube-system.svc.cluster.local"
+    #     metricName: http_total_requests
+    #     query: sum(rate(nginx_ingress_controller_requests{namespace='enonic-review', service="nhn-service"}[2m]))*500
+    #     threshold: '1'
+
