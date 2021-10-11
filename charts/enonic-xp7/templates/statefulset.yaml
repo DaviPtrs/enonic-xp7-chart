@@ -19,6 +19,19 @@ spec:
   selector:
       matchLabels:
         name: {{ .Release.Name }}
+  {{- if .Values.volumeSpec.persistentIndexes }}
+  volumeClaimTemplates:
+    - metadata:
+        name: indexes
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        {{- with .Values.volumeSpec.indexStorageClass }}
+        storageClassName: {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.volumeSpec.sizes.index | default .Values.volumeSpec.sizes.blobs }}
+  {{- end }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -50,12 +63,19 @@ spec:
               name: config-volume
             - mountPath: /enonic-xp/home/repo/blob/
               name: blobs
+            {{- if .Values.volumeSpec.persistentIndexes }}
+            - mountPath: /enonic-xp/home/repo/index/
+              name: indexes
+            {{- end }}
             - mountPath: /enonic-xp/home/snapshots/
               name: snapshots
             - mountPath: /enonic-xp/home/data/
               name: data
             - mountPath: /enonic-xp/home/deploy/
               name: deploy
+          {{- with .Values.containerSecurityContext }}
+          securityContext: {{ toYaml . | nindent 12 }}
+          {{- end }}
           livenessProbe:
             httpGet:
               path: /cluster.elasticsearch
@@ -71,7 +91,7 @@ spec:
             periodSeconds: 10
         {{- with .Values.smtp }}
         {{- if .enabled }}
-        - image: {{ .image | default "namshi/smtp" }}
+        - image: {{ .image | default "ixdotai/smtp" }}
           name: smtp
         {{- end }}
         {{- end }}
@@ -93,6 +113,9 @@ spec:
         - name: deploy
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-deploy
+      {{- with .Values.securityContext }}
+      securityContext: {{ toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

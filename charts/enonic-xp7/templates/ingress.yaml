@@ -12,6 +12,14 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.maxBodySize }}
     nginx.ingress.kubernetes.io/affinity: "cookie"
+    {{- if .Values.ingress.preventIndexing }}
+    nginx.ingress.kubernetes.io/server-snippet: |
+      add_header X-Robots-Tag "noindex, nofollow";
+      location = /robots.txt {
+          add_header Content-Type text/plain;
+          return 200 "User-agent: *\nDisallow: /\n";
+      }
+    {{- end }}
 spec:
 {{- if .Values.ingress.ssl | default false }}
   tls:

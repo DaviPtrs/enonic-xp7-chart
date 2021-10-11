@@ -51,26 +51,57 @@ data:
 {{ toYaml . | nindent 2 }}
 {{- end }}
 
+
   logback.xml: |-
+{{- with .Values.loggingConfigOverride }}
+    {{ nindent 4  .}}
+{{- else }}
+  {{- with $.Values.customLoggingConfigs }}
     <?xml version="1.0"?>
     <configuration scan="true" scanPeriod="60 seconds">
 
+      {{- with .fileAppender }}
+      {{- if .enabled }}
+      <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${xp.home}/logs/server.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+          <fileNamePattern>${xp.home}/logs/server.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+          <maxFileSize>{{ .maxSize }}</maxFileSize>
+          <maxHistory>{{ .maxHistory }}</maxHistory>
+          <totalSizeCap>{{ .totalSizeCap }}</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+          <pattern>{{ .format | default $.Values.customLoggingConfigs.defaultFormat }}</pattern>
+        </encoder>
+      </appender>
+      {{- end }}
+      {{- end }}
+
+
       <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-          <pattern>{{ .Values.customLoggingFormat }}</pattern>
+          <pattern>{{ .defaultFormat }}</pattern>
         </encoder>
       </appender>
 
       <root level="info">
         <appender-ref ref="STDOUT"/>
+        {{- if .fileAppender.enabled }}
+        <appender-ref ref="FILE"/>
+        {{- end }}
       </root>
 
       <logger name="org.apache.ignite" additivity="false">
         <level value="WARN"/>
         <appender-ref ref="STDOUT"/>
+        {{- if .fileAppender.enabled }}
+        <appender-ref ref="FILE"/>
+        {{- end }}
       </logger>
 
     </configuration>
+  {{- end }}
+{{- end }}
 
 
 
